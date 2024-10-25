@@ -13,11 +13,13 @@ namespace LoggerDemo.Repositories
             _dbConnection = dbConnection;
         }
 
-        public void Create(ApiLog apiLog)
+        public void Create(ApiLog apiLog, IDbTransaction dbTransaction = null)
         {
             const string sql = @"
-                INSERT INTO ApiLogs (Timestamp, Method, Endpoint, RequestHeaders, RequestBody, StatusCode, ResponseHeaders, ResponseBody, ExecutionTime)
-                VALUES (@Timestamp, @Method, @Endpoint, @RequestHeaders, @RequestBody, @StatusCode, @ResponseHeaders, @ResponseBody, @ExecutionTime)";
+                INSERT INTO ApiLogs 
+                    (Timestamp, Method, Endpoint, RequestHeaders, RequestBody, StatusCode, ResponseHeaders, ResponseBody, ExecutionTime)
+                VALUES 
+                    (@Timestamp, @Method, @Endpoint, @RequestHeaders, @RequestBody, @StatusCode, @ResponseHeaders, @ResponseBody, @ExecutionTime)";
 
             var parameters = new DynamicParameters();
             parameters.Add("@Timestamp", apiLog.Timestamp);

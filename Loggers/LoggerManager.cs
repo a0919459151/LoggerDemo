@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
 using Serilog;
 using System;
 
@@ -6,42 +6,38 @@ namespace LoggerDemo.Loggers
 {
     public class LoggerManager
     {
-        private readonly IServiceProvider _serviceProvider;
+        private static readonly Lazy<LoggerManager> _instance = new Lazy<LoggerManager>(() => new LoggerManager());
 
-        private ILogger _apiLogger;
-        private ILogger _httpClientLogger;
+        public static ILogger ErrorLogger { get; set; }
+        public static ILogger ApiLogger { get; set; }
+        public static ILogger HttpClientLogger { get; set; }
 
-        public LoggerManager(IServiceProvider serviceProvider)
+        public static LoggerManager Instance => _instance.Value;
+
+        public LoggerManager CreateApiLogger(ApiLogDatabaseSink apiLogDatabaseSink)
         {
-            _serviceProvider = serviceProvider;
+            new LoggerConfiguration()
+               .WriteTo.Sink(apiLogDatabaseSink)
+               .CreateLogger();
+
+            return this;
         }
 
-        // Get ApiLogger
-        public ILogger GetApiLogger()
+        public LoggerManager CreateHttpClientLogger(HttpClientLogDatabaseSink httpClientLogDatabaseSink)
         {
-            if (_apiLogger is null)
-            {
-                // init logger in LoggerManager scoped lifetime
-                _apiLogger = new LoggerConfiguration()
-                   .WriteTo.Sink(_serviceProvider.GetRequiredService<ApiLogDatabaseSink>())
-                   .CreateLogger();
-            }
-            
-            return _apiLogger;
+            new LoggerConfiguration()
+               .WriteTo.Sink(httpClientLogDatabaseSink)
+               .CreateLogger();
+
+            return this;
         }
-
-        // Get HttpClientLogger
-        public ILogger GetHttpClientLogger()
+        public LoggerManager CreateLogger(IConfiguration configuration)
         {
-            if (_httpClientLogger is null)
-            {
-                // init logger in LoggerManager scoped lifetime
-                _httpClientLogger = new LoggerConfiguration()
-                    .WriteTo.Sink(_serviceProvider.GetRequiredService<HttpClientLogDatabaseSink>())
-                    .CreateLogger();
-            }
+            ErrorLogger = new LoggerConfiguration()
+               .ReadFrom.Configuration(configuration)
+               .CreateLogger();
 
-            return _httpClientLogger;
+            return this;
         }
     }
 }

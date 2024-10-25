@@ -1,0 +1,20 @@
+networks:
+  local:
+    driver: ${NETWORKS_DRIVER}
+
+volumes:
+  mssql-data:
+
+services:
+  ### MSSQL #################################################
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    ports:
+      - "${MSSQL_PORT}:1433"
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: ${MSSQL_PASSWORD}
+    volumes:
+      - mssql-data:/data
+    networks:
+      - local

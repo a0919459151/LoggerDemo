@@ -13,11 +13,13 @@ namespace LoggerDemo.Repositories
             _dbConnection = dbConnection;
         }
 
-        public void Create(HttpClientLog httpClientLog)
+        public void Create(HttpClientLog httpClientLog, IDbTransaction dbTransaction = null)
         {
             const string sql = @"
-                INSERT INTO HttpClientLogs (Timestamp, Method, Endpoint, RequestHeaders, RequestBody, StatusCode, ResponseHeaders, ResponseBody, ExecutionTime)
-                VALUES (@Timestamp, @Method, @Endpoint, @RequestHeaders, @RequestBody, @StatusCode, @ResponseHeaders, @ResponseBody, @ExecutionTime)";
+                INSERT INTO HttpClientLogs 
+                    (Timestamp, Method, Endpoint, RequestHeaders, RequestBody, StatusCode, ResponseHeaders, ResponseBody, ExecutionTime)
+                VALUES 
+                    (@Timestamp, @Method, @Endpoint, @RequestHeaders, @RequestBody, @StatusCode, @ResponseHeaders, @ResponseBody, @ExecutionTime)";
 
             var parameters = new DynamicParameters();
             parameters.Add("@Timestamp", httpClientLog.Timestamp);
@@ -30,7 +32,7 @@ namespace LoggerDemo.Repositories
             parameters.Add("@ResponseBody", httpClientLog.ResponseBody);
             parameters.Add("@ExecutionTime", httpClientLog.ExecutionTime);
 
-            _dbConnection.Execute(sql, parameters);
+            _dbConnection.Execute(sql, parameters, dbTransaction);
         }
     }
 }

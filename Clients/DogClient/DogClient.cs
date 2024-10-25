@@ -16,11 +16,11 @@ namespace LoggerDemo.Clients.DogClient
         }
 
         // Get Dog
-        public async Task<IEnumerable<dynamic>> GetDogAsync()
+        public async Task<dynamic> GetDogAsync()
         {
             var url = "api/breeds/image/random";
 
-            return await GetAsync<IEnumerable<dynamic>>(url);
+            return await GetAsync<dynamic>(url);
         }
     }
 }

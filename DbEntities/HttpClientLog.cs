@@ -11,6 +11,6 @@
         public string StatusCode { get; set; }
         public string ResponseHeaders { get; set; }
         public string ResponseBody { get; set; }
-        public double ExecutionTime { get; set; }
+        public double? ExecutionTime { get; set; }
     }
 }

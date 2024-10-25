@@ -42,30 +42,22 @@ namespace LoggerDemo.Middlewares
             var stopwatch = Stopwatch.StartNew();
             var originalBodyStream = context.Response.Body;
 
-            try
+            using (var responseBody = new MemoryStream())
             {
-                using (var responseBody = new MemoryStream())
-                {
-                    context.Response.Body = responseBody;
+                context.Response.Body = responseBody;
 
-                    await _next(context); // Proceed to the next middleware
+                await _next(context); // Proceed to the next middleware
 
-                    log.StatusCode = context.Response.StatusCode.ToString();
-                    log.ResponseHeaders = JsonSerializer.Serialize(context.Response.Headers.ToDictionary(h => h.Key, h => h.Value.ToString()));
-                    log.ResponseBody = await ReadResponseBodyAsync(context.Response);
+                log.StatusCode = context.Response.StatusCode.ToString();
+                log.ResponseHeaders = JsonSerializer.Serialize(context.Response.Headers.ToDictionary(h => h.Key, h => h.Value.ToString()));
+                log.ResponseBody = await ReadResponseBodyAsync(context.Response);
 
-                    stopwatch.Stop();
-                    log.ExecutionTime = stopwatch.ElapsedMilliseconds;
+                stopwatch.Stop();
+                log.ExecutionTime = stopwatch.ElapsedMilliseconds;
 
-                    WriteLog(apiLogger, log);
+                await responseBody.CopyToAsync(originalBodyStream); // Copy the response back to the original stream
 
-                    await responseBody.CopyToAsync(originalBodyStream); // Copy the response back to the original stream
-                }
-            }
-            catch (Exception)
-            {
                 WriteLog(apiLogger, log);
-                throw;  // Re-throw to global exception handler
             }
         }
 

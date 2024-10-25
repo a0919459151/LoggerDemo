@@ -1,0 +1,35 @@
+﻿CREATE TABLE ApiLogs (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    Timestamp NVARCHAR(50) NULL,
+    Method NVARCHAR(10) NULL,
+    Endpoint NVARCHAR(200) NULL,
+    RequestHeaders NVARCHAR(MAX) NULL,
+    RequestBody NVARCHAR(MAX) NULL,
+    StatusCode NVARCHAR(10) NULL,
+    ResponseHeaders NVARCHAR(MAX) NULL,
+    ResponseBody NVARCHAR(MAX) NULL,
+    ExecutionTime FLOAT NULL
+);
+
+CREATE TABLE HttpClientLogs (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    Timestamp NVARCHAR(50) NULL,
+    Method NVARCHAR(10) NULL,
+    Endpoint NVARCHAR(200) NULL,
+    RequestHeaders NVARCHAR(MAX) NULL,
+    RequestBody NVARCHAR(MAX) NULL,
+    StatusCode NVARCHAR(10) NULL,
+    ResponseHeaders NVARCHAR(MAX) NULL,
+    ResponseBody NVARCHAR(MAX) NULL,
+    ExecutionTime FLOAT NULL
+);
+
+CREATE TABLE Dogs (
+	Id INT PRIMARY KEY IDENTITY(1,1),
+	Name NVARCHAR(50) NULL
+);
+
+CREATE TABLE Cats (
+	Id INT PRIMARY KEY IDENTITY(1,1),
+	Name NVARCHAR(50) NULL
+);
