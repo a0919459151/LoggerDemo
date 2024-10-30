@@ -19,8 +19,6 @@ namespace LoggerDemo.Controllers
         [HttpGet("GetDog")]
         public async Task<IActionResult> GetDog()
         {
-            throw new ApiException("10001", "test error");
-
             var res = await _dogClient.GetDogAsync();
 
             return Ok(res);

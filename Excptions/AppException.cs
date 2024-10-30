@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Http;
 namespace LoggerDemo.Excptions
 {
     /// <summary>
-    /// ApiException, 系統明確定義的錯誤情境
+    /// AppException, 系統明確定義的錯誤情境
     /// </summary>
-    public class ApiException : Exception
+    public class AppException : Exception
     {
         /// <summary>
         /// http 狀態碼
@@ -19,7 +19,7 @@ namespace LoggerDemo.Excptions
         public string ErrorCode { get; set; }
 
         // Ctor for ErrorCode
-        public ApiException(string errorCode, string errorMessage)
+        public AppException(string errorCode, string errorMessage)
             : base(errorMessage)
         {
             ErrorCode = errorCode;

@@ -1,43 +1,40 @@
 ﻿using LoggerDemo.Excptions;
+using LoggerDemo.Extensions;
+using LoggerDemo.Loggers;
 using Microsoft.AspNetCore.Http;
 using System;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace LoggerDemo.Middlewares
 {
     public static class GlobalExceptionHandler
     {
-        public static async Task HandleApiException(HttpContext context, ApiException exception)
+        public static async Task HandleAppException(HttpContext context, AppException exception)
         {
-            //logger.Error(exception, "Exception occurred");
+            var statusCode = exception.StatusCode;
+            var errorCode = !string.IsNullOrEmpty(exception.ErrorCode) ? exception.ErrorCode : AppError.DefaultErrorCode;
+            var errorMessage = !string.IsNullOrEmpty(exception.Message) ? exception.Message : AppError.DefaultErrorMessage;
 
-            context.Response.StatusCode = exception.StatusCode;
-            context.Response.ContentType = "application/json";
+            LoggerManager.AppLogger.Error(exception, "ErrorCode: {ErrorCode}, Message: {Message}", errorCode, errorMessage);
 
-            var responseObject = new
-            {
-                ErrorCode = exception.ErrorCode,
-                Message = exception.Message != null ? exception.Message : ApiError.DefaultErrorMessage,
-            };
-
-            await HttpResponseWritingExtensions.WriteAsync(context.Response, JsonSerializer.Serialize(responseObject));
+            await context.WriteResponse(
+                statusCode,
+                errorCode,
+                errorMessage);
         }
 
         public static async Task HandleGenericException(HttpContext context, Exception exception)
         {
-            //logger.Error(exception, "Exception occurred");
+            var statusCode = StatusCodes.Status500InternalServerError;
+            var errorCode = AppError.DefaultErrorCode;
+            var errorMessage = !string.IsNullOrEmpty(exception.Message) ? exception.Message : AppError.DefaultErrorMessage;
 
-            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-            context.Response.ContentType = "application/json";
+            LoggerManager.AppLogger.Error(exception, errorMessage);
 
-            var responseObject = new
-            {
-                ErrorCode = ApiError.DefaultErrorCode,  // "0"
-                Message = exception.Message != null ? exception.Message : ApiError.DefaultErrorMessage,
-            };
-
-            await HttpResponseWritingExtensions.WriteAsync(context.Response, JsonSerializer.Serialize(responseObject));
+            await context.WriteResponse(
+                statusCode,
+                errorCode,
+                errorMessage);
         }
     }
 }

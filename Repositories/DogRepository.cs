@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using LoggerDemo.DbEntities;
+using System.Collections.Generic;
 using System.Data;
 
 namespace LoggerDemo.Repositories
@@ -13,7 +14,7 @@ namespace LoggerDemo.Repositories
             _dbConnection = dbConnection;
         }
 
-        public void Create(Dog dog, IDbTransaction dbTransaction = null)
+        public void CreateDog(Dog dog, IDbTransaction dbTransaction = null)
         {
             const string sql = @"
                 INSERT INTO Dogs 
@@ -25,6 +26,14 @@ namespace LoggerDemo.Repositories
             parameters.Add("@Name", dog.Name);
 
             _dbConnection.Execute(sql, parameters, dbTransaction);
+        }
+
+        public void CreateDogs(IEnumerable<Dog> dogs, IDbTransaction dbTransaction = null)
+        {
+            foreach (var dog in dogs)
+            {
+                CreateDog(dog);
+            }
         }
     }
 }

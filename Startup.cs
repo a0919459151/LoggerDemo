@@ -35,17 +35,16 @@ namespace LoggerDemo
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "LoggerDemo", Version = "v1" });
             });
 
-
             var connectionString = Configuration.GetConnectionString("DefaultConnection");
-            var connection = new SqlConnection(connectionString);
+
             // LoggerManager
             LoggerManager.Instance
-                .CreateLogger(Configuration)
+                .CreateAppLogger(Configuration)
                 .CreateApiLogger(new ApiLogDatabaseSink(new ApiLogRepository(new SqlConnection(connectionString))))
                 .CreateHttpClientLogger(new HttpClientLogDatabaseSink(new HttpClientLogRepository(new SqlConnection(connectionString))));
 
             // Dapper
-            services.AddScoped<IDbConnection>(sp => connection);
+            services.AddScoped<IDbConnection>(sp => new SqlConnection(connectionString));
 
             // UnitOfWorks
             services.AddScoped<UnitOfWork>();
@@ -70,18 +69,18 @@ namespace LoggerDemo
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            // api logging middleware
+            app.UseMiddleware<RequestResponseLoggingMiddleware>();
+
+            // exception handle middleware
+            app.UseMiddleware<GlobalExceptionHandleMiddleware>();
+
             if (env.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "LoggerDemo v1"));
             }
-
-            // exception handle middleware
-            app.UseMiddleware<GlobalExceptionHandleMiddleware>();
-
-            // api logging middleware
-            app.UseMiddleware<RequestResponseLoggingMiddleware>();
-
+            
             app.UseRouting();
 
             app.UseAuthorization();

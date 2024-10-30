@@ -1,7 +1,9 @@
 ﻿using LoggerDemo.DbEntities;
+using LoggerDemo.Excptions;
 using LoggerDemo.Repositories;
 using LoggerDemo.UnitOfWorks;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 
 namespace LoggerDemo.Controllers
 {
@@ -23,16 +25,38 @@ namespace LoggerDemo.Controllers
             _catRepository = catRepository;
         }
 
-
-        // write 2 table log with transaction
-        [HttpPost("WriteLog")]
-        public IActionResult WriteLog()
+        [HttpPost("CreateDogAndCat")]
+        public IActionResult CreateDogAndCat()
         {
             var transaction = _unitOfWork.BeginTransaction();
 
-            _dogRepository.Create(new Dog() { Name = "Dog" }, transaction);
-            throw new System.Exception();
-            _catRepository.Create(new Cat() { Name = "Cat" }, transaction);
+            _dogRepository.CreateDog(new Dog() { Name = "Dog" }, transaction);
+            _catRepository.CreateCat(new Cat() { Name = "Cat" }, transaction);
+
+            _unitOfWork.Commit();
+
+            return Ok();
+        }
+
+        [HttpPost("CreateDogAndCatWithCount")]
+        public IActionResult CreateDogAndCat(int dogCount, int catCount)
+        {
+            var transaction = _unitOfWork.BeginTransaction();
+
+            var dogs = new List<Dog>();
+            for (int i = 0; i < dogCount; i++)
+            {
+                dogs.Add(new Dog() { Name = $"Dog {i + 1}" });
+            }
+
+            var cats = new List<Cat>();
+            for (int j = 0; j < catCount; j++)
+            {
+                cats.Add(new Cat() { Name = $"Cat {j + 1}" });
+            }
+
+            _dogRepository.CreateDogs(dogs, transaction);
+            _catRepository.CreateCats(cats, transaction);
 
             _unitOfWork.Commit();
 
